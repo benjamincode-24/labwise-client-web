@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labwise - Admin Login</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-purple: #6B46C1;
+            --secondary-purple: #A78BFA;
+            --text-dark: #1F2937;
+            --text-light: #6B7280;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-purple), var(--secondary-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary-purple), var(--secondary-purple));
+        }
+        
+        .form-input:focus {
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
+        <div class="text-center mb-8">
+<div class="flex items-center justify-center">
+    <a href="index.html" class="cursor-pointer">
+        <img 
+            src="resources\labwise-logo.png" 
+            alt="Labwise Admin" 
+            class="h-25 w-auto"
+        />
+    </a>
+</div>
+            <p class="text-gray-600">Admin Login Portal</p>
+        </div>
+        
+        <div id="login-notification" class="hidden p-3 rounded-lg mb-4 text-sm"></div>
+        
+        <form id="login-form" class="space-y-6">
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                <input type="text" id="username" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none transition-colors" placeholder="Enter your username" required>
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <input type="password" id="password" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none transition-colors" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+                Login
+            </button>
+        </form>
+        
+        <div class="text-center mt-6">
+            <a href="news.html" class="text-purple-600 hover:text-purple-700 text-sm transition-colors">
+                ← Back to News Page
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const loginForm = document.getElementById('login-form');
+        const loginNotification = document.getElementById('login-notification');
+
+        // Login form submission
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple authentication (in a real app, this would be handled server-side)
+            if (username === 'admin' && password === 'password') {
+                localStorage.setItem('isLoggedIn', 'true');
+                showNotification('Login successful! Redirecting...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 1500);
+            } else {
+                showNotification('Invalid username or password', 'error');
+            }
+        });
+
+        // Show notification
+        function showNotification(message, type) {
+            loginNotification.textContent = message;
+            loginNotification.className = `p-3 rounded-lg mb-4 text-sm ${
+                type === 'success' 
+                    ? 'bg-green-100 text-green-700 border border-green-200' 
+                    : 'bg-red-100 text-red-700 border border-red-200'
+            }`;
+            loginNotification.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,614 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labwise News | Healthcare Updates</title>
+    <meta name="description" content="Stay informed with the latest healthcare news, medical advancements, and updates from Labwise Medical Centre in Demo City.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Animation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-purple: #3c2055;
+            --secondary-purple: #a63b8d;
+            --text-dark: #1F2937;
+            --text-light: #6B7280;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-purple), var(--secondary-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(135deg, rgba(107, 70, 193, 0.1), rgba(167, 139, 250, 0.1));
+        }
+        
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        
+        .animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .news-card {
+            transition: all 0.3s ease;
+        }
+        
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(107, 70, 193, 0.15);
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .modal-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: white;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            border-radius: 12px;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+        
+        .modal-content.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(90vh - 130px);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            color: #374151;
+        }
+        
+        .preview-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .document-downloads {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary-purple);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .download-btn:hover {
+            background: var(--secondary-purple);
+            transform: translateY(-2px);
+        }
+        
+        .image-icon {
+            color: #10b981;
+        }
+        
+        .document-icon {
+            color: #3b82f6;
+        }
+        
+        .post-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .attachment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #f3f4f6;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .scroll-to-top {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: var(--primary-purple);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .scroll-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .scroll-to-top:hover {
+            background: var(--secondary-purple);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .scroll-to-top {
+                bottom: 80px;
+                right: 15px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+<div class="flex items-center">
+    <a href="index.html" class="cursor-pointer">
+        <img 
+            src="resources\labwise-logo.png" 
+            alt="Labwise Admin" 
+            class="h-10 w-auto"
+        />
+    </a>
+</div>
+                
+                <!-- Search Bar -->
+                <div class="hidden md:block flex-1 max-w-md mx-8 relative">
+                    <input type="text" id="searchInput" placeholder="Search services, doctors, info..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent" style="--tw-ring-color: var(--primary-purple); --tw-ring-opacity: 0.5" onfocus="this.style.borderColor='var(--primary-purple)'; this.style.boxShadow='0 0 0 3px rgba(60, 32, 85, 0.1)'" onblur="this.style.borderColor='rgb(209 213 219)'; this.style.boxShadow='none'" autocomplete="off">
+                    <div id="searchResults" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 z-50" style="display: none;"></div>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="index.html" class="font-medium px-3 py-2 rounded-md text-sm" style="color: var(--primary-purple)">Home</a>
+                        <a href="about.html" class="text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" style="--tw-text-opacity: 1; color: rgb(107 114 128 / var(--tw-text-opacity));" onmouseover="this.style.color='var(--primary-purple)'" onmouseout="this.style.color='rgb(107 114 128)'">About</a>
+                        <a href="faq.html" class="text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" onmouseover="this.style.color='var(--primary-purple)'" onmouseout="this.style.color='rgb(107 114 128)'">FAQ</a>
+                        <a href="news.html" class="text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" onmouseover="this.style.color='var(--primary-purple)'" onmouseout="this.style.color='rgb(107 114 128)'">News</a>
+                        <a href="booking.html" class="text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" onmouseover="this.style.color='var(--primary-purple)'" onmouseout="this.style.color='rgb(107 114 128)'">Book Appointment</a>
+                        <a href="contact.html" class="text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" onmouseover="this.style.color='var(--primary-purple)'" onmouseout="this.style.color='rgb(107 114 128)'">Contact</a>
+                    </div>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobileMenuToggle" class="text-gray-700 p-2" onmouseover="this.style.color='var(--primary-purple)'" onmouseout="this.style.color='rgb(107 114 128)'">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium" style="color: var(--primary-purple)">Home</a>
+                <a href="about.html" class="text-gray-700 block px-3 py-2 rounded-md text-base font-medium" onmouseover="this.style.color='var(--primary-purple)'" onmouseout="this.style.color='rgb(107 114 128)'">About</a>
+                <a href="faq.html" class="text-gray-700 block px-3 py-2 rounded-md text-base font-medium" onmouseover="this.style.color='var(--primary-purple)'" onmouseout="this.style.color='rgb(107 114 128)'">FAQ</a>
+                <a href="news.html" class="text-gray-700 block px-3 py-2 rounded-md text-base font-medium" onmouseover="this.style.color='var(--primary-purple)'" onmouseout="this.style.color='rgb(107 114 128)'">News</a>
+                <a href="booking.html" class="text-gray-700 block px-3 py-2 rounded-md text-base font-medium" onmouseover="this.style.color='var(--primary-purple)'" onmouseout="this.style.color='rgb(107 114 128)'">Book Appointment</a>
+                <a href="contact.html" class="text-gray-700 block px-3 py-2 rounded-md text-base font-medium" onmouseover="this.style.color='var(--primary-purple)'" onmouseout="this.style.color='rgb(107 114 128)'">Contact</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Modal Popup -->
+    <div id="postModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle" class="text-xl font-bold text-purple-600"></h3>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalContent"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hero Section -->
+    <section class="hero-bg pt-16 pb-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center animate-on-scroll">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6">
+                    Labwise <span class="gradient-text">News</span>
+                </h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Stay informed with the latest healthcare news, medical advancements, and updates from Labwise Medical Centre in Demo City.
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- News Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 animate-on-scroll">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">
+                    Latest <span class="gradient-text">Healthcare Updates</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Discover the latest medical breakthroughs, health tips, and updates from our medical team.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="news-container">
+                <!-- News articles will be dynamically inserted here -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <div class="text-2xl font-bold gradient-text mb-4">Labwise</div>
+                    <p class="text-gray-400 mb-4">
+                        Your trusted partner for comprehensive healthcare and wellness in the heart of Demo City.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="about.html" class="text-gray-400 hover:text-white transition-colors">About</a></li>
+                        <li><a href="news.html" class="text-gray-400 hover:text-white transition-colors">News</a></li>
+                        <li><a href="contact.html" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Admin Access</h3>
+                    <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors" onclick="window.location.href='login.html'">
+                        Admin Login
+                    </button>
+                    <div class="mt-4 space-y-2 text-gray-400">
+                        <p>📍 123 Medical Plaza, Suite 100<br>Demo City, DC 12345, Zimbabwe</p>
+                        <p>📞 +1 (555) 123-4567</p>
+                        <p>📱 +1 (555) 987-6543</p>
+                        <p>✉️ info@demo-labwise.com</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Labwise Medical Centre. All rights reserved. | Website: www.demo-labwise.com</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script>
+        // Load blog posts from localStorage
+        let blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+
+        // DOM Elements
+        const newsContainer = document.getElementById('news-container');
+        const modal = document.getElementById('postModal');
+        const modalContent = document.getElementById('modalContent');
+        const modalTitle = document.getElementById('modalTitle');
+
+        // Display blog posts
+        function displayBlogPosts() {
+            newsContainer.innerHTML = '';
+            
+            if (blogPosts.length === 0) {
+                newsContainer.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <div class="text-6xl text-gray-300 mb-4">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">No News Available</h3>
+                        <p class="text-gray-500">Check back later for the latest updates and news.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            blogPosts.forEach(post => {
+                const hasImages = post.files?.some(file => file.type.startsWith('image/'));
+                const hasDocuments = post.files?.some(file => 
+                    file.type.includes('pdf') || 
+                    file.type.includes('word') || 
+                    file.type.includes('document')
+                );
+                
+                const newsCard = document.createElement('div');
+                newsCard.className = 'news-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 animate-on-scroll';
+                
+                // Get preview image if exists
+                let previewImage = '';
+                if (hasImages) {
+                    const imageFile = post.files.find(file => file.type.startsWith('image/'));
+                    previewImage = imageFile.data;
+                } else {
+                    previewImage = 'https://images.unsplash.com/photo-1582719471384-894fbb16e074?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+                }
+                
+                newsCard.innerHTML = `
+                    <div class="h-48 overflow-hidden">
+                        <img src="${previewImage}" alt="${post.title}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-purple-600 mb-2">${post.title}</h3>
+                        <p class="text-sm text-gray-500 mb-4">${formatDate(post.date)}</p>
+                        <p class="text-gray-600 mb-4 leading-relaxed line-clamp-3">${post.content}</p>
+                        <button onclick="openModal(${post.id})" class="text-purple-600 font-semibold hover:text-purple-700 transition-colors inline-flex items-center gap-2">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                `;
+                newsContainer.appendChild(newsCard);
+            });
+        }
+
+        // Open modal with post content
+        function openModal(postId) {
+            const post = blogPosts.find(p => p.id === postId);
+            if (!post) return;
+            
+            modalTitle.textContent = post.title;
+            
+            const hasImages = post.files?.some(file => file.type.startsWith('image/'));
+            const hasDocuments = post.files?.some(file => 
+                file.type.includes('pdf') || 
+                file.type.includes('word') || 
+                file.type.includes('document')
+            );
+            
+            let contentHTML = `
+                <div class="post-meta">
+                    <span><i class="far fa-calendar"></i> ${formatDate(post.date)}</span>
+                </div>
+                <p class="text-gray-700 leading-relaxed mb-6">${post.content}</p>
+            `;
+            
+            // Add images if exists
+            if (hasImages) {
+                contentHTML += '<div class="mb-6">';
+                post.files.filter(file => file.type.startsWith('image/')).forEach(file => {
+                    contentHTML += `<img src="${file.data}" alt="${file.name}" class="preview-image">`;
+                });
+                contentHTML += '</div>';
+            }
+            
+            // Add document downloads if exists
+            if (hasDocuments) {
+                contentHTML += '<div class="document-downloads">';
+                contentHTML += '<h4 class="font-semibold mb-3">Available Documents:</h4>';
+                post.files.filter(file => 
+                    file.type.includes('pdf') || 
+                    file.type.includes('word') || 
+                    file.type.includes('document')
+                ).forEach(file => {
+                    let icon = 'fa-file';
+                    if (file.type.includes('pdf')) icon = 'fa-file-pdf';
+                    if (file.type.includes('word') || file.type.includes('document')) icon = 'fa-file-word';
+                    
+                    contentHTML += `
+                        <a href="${file.data}" download="${file.name}" class="download-btn">
+                            <i class="fas ${icon}"></i>
+                            Download ${file.name}
+                        </a>
+                    `;
+                });
+                contentHTML += '</div>';
+            }
+            
+            // Add URL if exists
+            if (post.url) {
+                contentHTML += `
+                    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <h4 class="font-semibold mb-2">External Resource:</h4>
+                        <a href="${post.url}" target="_blank" class="text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-external-link-alt"></i> ${post.url}
+                        </a>
+                    </div>
+                `;
+            }
+            
+            modalContent.innerHTML = contentHTML;
+            
+            // Show modal
+            setTimeout(() => {
+                modal.classList.add('active');
+                document.querySelector('.modal-content').classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            }, 10);
+        }
+
+        // Close modal
+        function closeModal() {
+            modal.classList.remove('active');
+            document.querySelector('.modal-content').classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Format date for display
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const date = new Date(dateString);
+            return date.toLocaleDateString(undefined, options);
+        }
+
+        // Track visitor
+        function trackVisitor() {
+            let visitorCount = parseInt(localStorage.getItem('visitorCount')) || 0;
+            visitorCount++;
+            localStorage.setItem('visitorCount', visitorCount);
+        }
+        
+        // Initialize the page when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            trackVisitor();
+            displayBlogPosts();
+            
+            // Initialize scroll animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-in');
+                    }
+                });
+            }, observerOptions);
+            
+            const animateElements = document.querySelectorAll('.animate-on-scroll');
+            animateElements.forEach(el => observer.observe(el));
+            
+            // Scroll to top functionality
+            window.addEventListener('scroll', function() {
+                const scrollBtn = document.getElementById('scrollToTop');
+                if (window.pageYOffset > 300) {
+                    scrollBtn.classList.add('show');
+                } else {
+                    scrollBtn.classList.remove('show');
+                }
+            });
+        });
+        
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+    
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTop" class="scroll-to-top" onclick="scrollToTop()" title="Back to top">
+        <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+</body>
+</html>

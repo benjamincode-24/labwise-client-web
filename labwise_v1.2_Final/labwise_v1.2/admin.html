@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labwise - Admin Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Animation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-purple: #3c2055;
+            --secondary-purple: #a63b8d;
+            --text-dark: #1F2937;
+            --text-light: #6B7280;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-purple), var(--secondary-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary-purple), var(--secondary-purple));
+        }
+        
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        
+        .animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .form-input:focus {
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-purple), #553C9A);
+        }
+        
+        .file-preview {
+            max-width: 200px;
+            max-height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .file-info {
+            background: #f9fafb;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-top: 4px;
+            font-size: 0.875rem;
+        }
+        
+        .attachment-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+        
+        .pdf-icon { background-color: #f87171; color: white; }
+        .doc-icon { background-color: #60a5fa; color: white; }
+        .image-icon { background-color: #34d399; color: white; }
+        .url-icon { background-color: #a78bfa; color: white; }
+        
+        /* Drag and drop area styling */
+        .drag-drop-area {
+            transition: all 0.3s ease;
+        }
+        
+        .drag-drop-area.dragover {
+            border-color: var(--primary-purple);
+            background-color: rgba(107, 70, 193, 0.05);
+        }
+        
+        /* Modal styles for preview */
+        .preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .preview-modal.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .preview-modal-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            border-radius: 12px;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+        
+        .preview-modal-content.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .preview-modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .preview-modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(80vh - 130px);
+        }
+        
+        .close-preview-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s ease;
+        }
+        
+        .close-preview-modal:hover {
+            color: #374151;
+        }
+        
+        .file-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+        
+        .image-badge { background-color: #d1fae5; color: #065f46; }
+        .pdf-badge { background-color: #fee2e2; color: #991b1b; }
+        .doc-badge { background-color: #dbeafe; color: #1e40af; }
+        
+        .post-preview-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .scroll-to-top {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: var(--primary-purple);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .scroll-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .scroll-to-top:hover {
+            background: var(--secondary-purple);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .scroll-to-top {
+                bottom: 80px;
+                right: 15px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+
+                <!-- Logo -->
+<div class="flex items-center">
+    <a href="index.html" class="cursor-pointer">
+        <img 
+            src="resources\labwise-logo.png" 
+            alt="Labwise Admin" 
+            class="h-10 w-auto"
+        />
+    </a>
+</div>
+                
+                <!-- Admin Actions -->
+                <div class="flex items-center space-x-4">
+                    <button onclick="logout()" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Preview Modal -->
+    <div id="previewModal" class="preview-modal">
+        <div class="preview-modal-content">
+            <div class="preview-modal-header">
+                <h3 class="text-xl font-bold text-purple-600">Post Preview</h3>
+                <button class="close-preview-modal" onclick="closePreviewModal()">&times;</button>
+            </div>
+            <div class="preview-modal-body">
+                <div id="previewContent">
+                    <!-- Preview content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="pt-16 min-h-screen">
+        <div class="flex">
+            <!-- Sidebar -->
+            <div class="sidebar w-64 min-h-screen text-white p-6">
+                <h2 class="text-xl font-bold mb-6">Admin Dashboard</h2>
+                <nav class="space-y-2">
+                    <a href="#" onclick="showSection('dashboard')" class="block py-2 px-3 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition-colors">
+                        <i class="fas fa-chart-bar mr-2"></i>Dashboard
+                    </a>
+                    <a href="#" onclick="showSection('posts')" class="block py-2 px-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+                        <i class="fas fa-newspaper mr-2"></i>Manage Posts
+                    </a>
+                    <a href="#" onclick="showSection('add-post')" class="block py-2 px-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+                        <i class="fas fa-plus-circle mr-2"></i>Add New Post
+                    </a>
+                    <a href="#" onclick="showSection('settings')" class="block py-2 px-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+                        <i class="fas fa-cog mr-2"></i>Settings
+                    </a>
+                </nav>
+                
+                <!-- Quick Stats -->
+                <div class="mt-8 pt-6 border-t border-white border-opacity-20">
+                    <h4 class="text-sm font-medium text-white text-opacity-80 mb-3">Quick Stats</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span>Total Posts:</span>
+                            <span class="font-semibold" id="sidebar-total-posts">0</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span>Images:</span>
+                            <span class="font-semibold" id="sidebar-images-count">0</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span>Documents:</span>
+                            <span class="font-semibold" id="sidebar-docs-count">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content Area -->
+            <div class="flex-1 p-8">
+                <!-- Dashboard Section -->
+                <div id="dashboard" class="section">
+                    <h1 class="text-3xl font-bold mb-6">Welcome to Labwise Admin Dashboard</h1>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-600 text-sm">Total Posts</p>
+                                    <p class="text-2xl font-bold text-purple-600" id="total-posts">0</p>
+                                </div>
+                                <div class="text-4xl text-purple-500">
+                                    <i class="fas fa-newspaper"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-600 text-sm">Images Uploaded</p>
+                                    <p class="text-2xl font-bold text-purple-600" id="images-count">0</p>
+                                </div>
+                                <div class="text-4xl text-green-500">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-600 text-sm">Documents Uploaded</p>
+                                    <p class="text-2xl font-bold text-purple-600" id="docs-count">0</p>
+                                </div>
+                                <div class="text-4xl text-blue-500">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-600 text-sm">Website Visitors</p>
+                                    <p class="text-2xl font-bold text-purple-600" id="visitor-count">0</p>
+                                </div>
+                                <div class="text-4xl text-orange-500">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h2 class="text-xl font-bold mb-4">Recent Activity</h2>
+                            <div id="recent-activity" class="space-y-3">
+                                <!-- Activity items will be inserted here -->
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h2 class="text-xl font-bold mb-4">Quick Actions</h2>
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="showSection('add-post')" class="bg-purple-100 text-purple-600 p-4 rounded-lg hover:bg-purple-200 transition-colors text-center">
+                                    <i class="fas fa-plus-circle text-2xl mb-2"></i>
+                                    <p class="font-medium">Add Post</p>
+                                </button>
+                                <button onclick="showSection('posts')" class="bg-blue-100 text-blue-600 p-4 rounded-lg hover:bg-blue-200 transition-colors text-center">
+                                    <i class="fas fa-edit text-2xl mb-2"></i>
+                                    <p class="font-medium">Edit Posts</p>
+                                </button>
+                                <button onclick="viewWebsite()" class="bg-green-100 text-green-600 p-4 rounded-lg hover:bg-green-200 transition-colors text-center">
+                                    <i class="fas fa-eye text-2xl mb-2"></i>
+                                    <p class="font-medium">View Website</p>
+                                </button>
+                                <button onclick="manageFiles()" class="bg-yellow-100 text-yellow-600 p-4 rounded-lg hover:bg-yellow-200 transition-colors text-center">
+                                    <i class="fas fa-file-alt text-2xl mb-2"></i>
+                                    <p class="font-medium">Manage Files</p>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Manage Posts Section -->
+                <div id="posts" class="section hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-3xl font-bold">Manage Posts</h1>
+                        <div class="flex space-x-3">
+                            <button onclick="showSection('add-post')" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+                                <i class="fas fa-plus mr-2"></i> Add New Post
+                            </button>
+                            <button onclick="refreshPosts()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors flex items-center">
+                                <i class="fas fa-sync-alt mr-2"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Search and Filter -->
+                    <div class="bg-white rounded-xl shadow-lg p-4 mb-6">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                            <div class="relative flex-1 max-w-md">
+                                <input type="text" id="search-posts" placeholder="Search posts..." class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            </div>
+                            <div class="flex space-x-2">
+                                <select id="filter-type" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+                                    <option value="all">All Types</option>
+                                    <option value="image">With Images</option>
+                                    <option value="document">With Documents</option>
+                                </select>
+                                <select id="sort-posts" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+                                    <option value="newest">Newest First</option>
+                                    <option value="oldest">Oldest First</option>
+                                    <option value="title">By Title</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attachments</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="posts-table-body" class="bg-white divide-y divide-gray-200">
+                                    <!-- Posts will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="mt-6 flex justify-between items-center">
+                        <div class="text-sm text-gray-500" id="pagination-info">
+                            Showing 0 of 0 posts
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="prev-page" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Previous
+                            </button>
+                            <button id="next-page" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Add New Post Section -->
+                <div id="add-post" class="section hidden">
+                    <h1 class="text-3xl font-bold mb-6">Add New Post</h1>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <form id="add-post-form" class="space-y-6">
+                            <div>
+                                <label for="post-title" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-heading mr-2"></i>Title *
+                                </label>
+                                <input type="text" id="post-title" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none transition-colors" placeholder="Enter post title" required>
+                            </div>
+                            
+                            <div>
+                                <label for="post-content" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-align-left mr-2"></i>Content *
+                                </label>
+                                <textarea id="post-content" rows="8" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none transition-colors resize-none" placeholder="Enter post content" required></textarea>
+                                <div class="mt-2 text-sm text-gray-500">
+                                    <span id="char-count">0</span> characters
+                                </div>
+                            </div>
+                            
+                            <!-- File Upload Section -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-paperclip mr-2"></i>Upload Files (Optional)
+                                </label>
+                                <p class="text-sm text-gray-500 mb-4">
+                                    Upload images (.jpg, .png) to display in post previews, or documents (.pdf, .doc, .docx) for download.
+                                </p>
+                                
+                                <div id="drag-drop-area" class="drag-drop-area mt-1 flex justify-center px-6 pt-8 pb-8 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:border-purple-400 transition-colors">
+                                    <div class="space-y-2 text-center">
+                                        <div class="text-4xl text-gray-400">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                        </div>
+                                        <div class="flex text-sm text-gray-600 justify-center">
+                                            <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-purple-500">
+                                                <span>Click to upload</span>
+                                                <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,image/*">
+                                            </label>
+                                            <p class="pl-1">or drag and drop</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">
+                                            JPG, PNG, PDF, Word documents (max 50MB each)
+                                        </p>
+                                        <div class="pt-4">
+                                            <span class="file-type-badge image-badge">
+                                                <i class="fas fa-image"></i> Images
+                                            </span>
+                                            <span class="file-type-badge pdf-badge">
+                                                <i class="fas fa-file-pdf"></i> PDF
+                                            </span>
+                                            <span class="file-type-badge doc-badge">
+                                                <i class="fas fa-file-word"></i> Word
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- File Preview Area -->
+                                <div id="file-preview-container" class="mt-6 space-y-4 hidden">
+                                    <h4 class="text-sm font-medium text-gray-700">Selected Files (<span id="file-count">0</span>):</h4>
+                                    <div id="file-previews" class="space-y-3"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- URL Input Section -->
+                            <div>
+                                <label for="post-url" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-link mr-2"></i>External URL (Optional)
+                                </label>
+                                <input type="url" id="post-url" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none transition-colors" placeholder="https://example.com">
+                                <p class="mt-1 text-sm text-gray-500">Add a link to external resources related to this post.</p>
+                            </div>
+                            
+                            <!-- Preview Section -->
+                            <div class="border-t pt-6">
+                                <h4 class="text-lg font-medium text-gray-700 mb-4">Post Preview</h4>
+                                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <h5 class="font-medium text-purple-600" id="preview-title">Post Title</h5>
+                                        <span class="text-xs text-gray-500" id="preview-date">Just now</span>
+                                    </div>
+                                    <p class="text-gray-600 text-sm line-clamp-3 mb-3" id="preview-content">Post content will appear here...</p>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-500">Contains:</span>
+                                        <div id="preview-attachments" class="flex space-x-1">
+                                            <!-- Attachment badges will appear here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-4 pt-4 border-t">
+                                <button type="submit" class="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center">
+                                    <i class="fas fa-paper-plane mr-2"></i>
+                                    <span id="submit-button-text">Publish Post</span>
+                                </button>
+                                <button type="button" onclick="previewPost()" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors flex items-center">
+                                    <i class="fas fa-eye mr-2"></i> Preview
+                                </button>
+                                <button type="button" onclick="cancelPost()" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-colors">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Settings Section -->
+                <div id="settings" class="section hidden">
+                    <h1 class="text-3xl font-bold mb-6">Settings</h1>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h2 class="text-xl font-bold mb-4">Website Settings</h2>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <span class="font-medium">Maintenance Mode</span>
+                                        <p class="text-sm text-gray-500">Temporarily disable the website</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" id="maintenance-mode">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <span class="font-medium">Analytics Tracking</span>
+                                        <p class="text-sm text-gray-500">Track website visitors</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer" id="analytics-tracking">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <span class="font-medium">Email Notifications</span>
+                                        <p class="text-sm text-gray-500">Get notified for new posts</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer" id="email-notifications">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h2 class="text-xl font-bold mb-4">Data Management</h2>
+                            <div class="space-y-4">
+                                <button onclick="backupData()" class="w-full flex items-center justify-between p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-save text-green-600 mr-3"></i>
+                                        <div>
+                                            <span class="font-medium">Backup Data</span>
+                                            <p class="text-sm text-gray-500">Create backup of all posts</p>
+                                        </div>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                </button>
+                                <button onclick="restoreData()" class="w-full flex items-center justify-between p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-history text-blue-600 mr-3"></i>
+                                        <div>
+                                            <span class="font-medium">Restore Backup</span>
+                                            <p class="text-sm text-gray-500">Restore from previous backup</p>
+                                        </div>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                </button>
+                                <button onclick="clearAllData()" class="w-full flex items-center justify-between p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-trash text-red-600 mr-3"></i>
+                                        <div>
+                                            <span class="font-medium">Clear All Data</span>
+                                            <p class="text-sm text-gray-500">Remove all posts and files</p>
+                                        </div>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript -->
+    <script>
+        // Check if user is logged in
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'login.html';
+        }
+        
+        let blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+        let currentEditIndex = null;
+        let selectedFiles = [];
+        let recentActivity = JSON.parse(localStorage.getItem('recentActivity')) || [];
+        let currentPage = 1;
+        const postsPerPage = 10;
+        
+        // Initialize dashboard
+        function initDashboard() {
+            updateStats();
+            loadPostsTable();
+            setupFileUpload();
+            updatePreview();
+            loadRecentActivity();
+            setupEventListeners();
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Character count for content
+            const contentInput = document.getElementById('post-content');
+            const charCount = document.getElementById('char-count');
+            
+            contentInput.addEventListener('input', function() {
+                charCount.textContent = this.value.length;
+                updatePreview();
+            });
+            
+            // Real-time preview updates
+            document.getElementById('post-title').addEventListener('input', updatePreview);
+            document.getElementById('file-upload').addEventListener('change', updatePreview);
+            document.getElementById('post-url').addEventListener('input', updatePreview);
+            
+            // Search functionality
+            document.getElementById('search-posts').addEventListener('input', function() {
+                currentPage = 1;
+                loadPostsTable();
+            });
+            
+            // Filter functionality
+            document.getElementById('filter-type').addEventListener('change', function() {
+                currentPage = 1;
+                loadPostsTable();
+            });
+            
+            // Sort functionality
+            document.getElementById('sort-posts').addEventListener('change', function() {
+                currentPage = 1;
+                loadPostsTable();
+            });
+            
+            // Pagination
+            document.getElementById('prev-page').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadPostsTable();
+                }
+            });
+            
+            document.getElementById('next-page').addEventListener('click', function() {
+                const totalPosts = getFilteredPosts().length;
+                const totalPages = Math.ceil(totalPosts / postsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    loadPostsTable();
+                }
+            });
+            
+            // Drag and drop for files
+            const dragDropArea = document.getElementById('drag-drop-area');
+            const fileInput = document.getElementById('file-upload');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dragDropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dragDropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dragDropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dragDropArea.classList.add('dragover');
+            }
+            
+            function unhighlight() {
+                dragDropArea.classList.remove('dragover');
+            }
+            
+            dragDropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                fileInput.files = files;
+                fileInput.dispatchEvent(new Event('change'));
+            }
+            
+            // Click anywhere on drag-drop area to trigger file input
+            dragDropArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const totalPosts = blogPosts.length;
+            document.getElementById('total-posts').textContent = totalPosts;
+            document.getElementById('sidebar-total-posts').textContent = totalPosts;
+            
+            // Count images and documents
+            let imagesCount = 0;
+            let docsCount = 0;
+            
+            blogPosts.forEach(post => {
+                if (post.files && post.files.length) {
+                    post.files.forEach(file => {
+                        if (file.type && file.type.startsWith('image/')) {
+                            imagesCount++;
+                        } else if (file.type && (file.type.includes('pdf') || file.type.includes('word') || file.type.includes('document'))) {
+                            docsCount++;
+                        }
+                    });
+                }
+            });
+            
+            document.getElementById('images-count').textContent = imagesCount;
+            document.getElementById('docs-count').textContent = docsCount;
+            document.getElementById('sidebar-images-count').textContent = imagesCount;
+            document.getElementById('sidebar-docs-count').textContent = docsCount;
+            
+            // Update visitor count
+            const visitorCount = localStorage.getItem('visitorCount') || 0;
+            document.getElementById('visitor-count').textContent = visitorCount;
+        }
+        
+        // Load recent activity
+        function loadRecentActivity() {
+            const activityContainer = document.getElementById('recent-activity');
+            activityContainer.innerHTML = '';
+            
+            // If no recent activity, show default
+            if (recentActivity.length === 0) {
+                recentActivity = [
+                    { type: 'welcome', text: 'Welcome to Labwise Admin Dashboard', time: 'Just now' }
+                ];
+            }
+            
+            recentActivity.slice(0, 5).forEach(activity => {
+                const activityDiv = document.createElement('div');
+                activityDiv.className = 'flex items-center p-3 bg-gray-50 rounded-lg';
+                
+                let icon = '📊';
+                let color = 'text-blue-500';
+                
+                switch(activity.type) {
+                    case 'post_added':
+                        icon = '📝';
+                        color = 'text-green-500';
+                        break;
+                    case 'post_updated':
+                        icon = '🔄';
+                        color = 'text-yellow-500';
+                        break;
+                    case 'post_deleted':
+                        icon = '🗑️';
+                        color = 'text-red-500';
+                        break;
+                    case 'file_uploaded':
+                        icon = '📎';
+                        color = 'text-purple-500';
+                        break;
+                    case 'welcome':
+                        icon = '👋';
+                        color = 'text-purple-500';
+                        break;
+                }
+                
+                activityDiv.innerHTML = `
+                    <span class="${color} mr-3">${icon}</span>
+                    <div class="flex-1">
+                        <span class="text-sm">${activity.text}</span>
+                        <span class="text-xs text-gray-500 block">${activity.time}</span>
+                    </div>
+                `;
+                activityContainer.appendChild(activityDiv);
+            });
+        }
+        
+        // Add activity log
+        function addActivity(text, type = 'info') {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            recentActivity.unshift({
+                type: type,
+                text: text,
+                time: timeString
+            });
+            
+            // Keep only last 20 activities
+            recentActivity = recentActivity.slice(0, 20);
+            localStorage.setItem('recentActivity', JSON.stringify(recentActivity));
+            loadRecentActivity();
+        }
+        
+        // Setup file upload functionality
+        function setupFileUpload() {
+            const fileInput = document.getElementById('file-upload');
+            const previewContainer = document.getElementById('file-preview-container');
+            const previewArea = document.getElementById('file-previews');
+            
+            fileInput.addEventListener('change', function(e) {
+                selectedFiles = Array.from(e.target.files);
+                previewArea.innerHTML = '';
+                
+                if (selectedFiles.length > 0) {
+                    previewContainer.classList.remove('hidden');
+                    document.getElementById('file-count').textContent = selectedFiles.length;
+                    
+                    selectedFiles.forEach((file, index) => {
+                        const fileDiv = document.createElement('div');
+                        fileDiv.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+                        
+                        let fileTypeIcon = 'fa-file';
+                        let fileTypeClass = 'bg-gray-100 text-gray-600';
+                        
+                        if (file.type.startsWith('image/')) {
+                            fileTypeIcon = 'fa-image';
+                            fileTypeClass = 'bg-green-100 text-green-600';
+                        } else if (file.type === 'application/pdf') {
+                            fileTypeIcon = 'fa-file-pdf';
+                            fileTypeClass = 'bg-red-100 text-red-600';
+                        } else if (file.type.includes('word') || file.name.includes('.doc')) {
+                            fileTypeIcon = 'fa-file-word';
+                            fileTypeClass = 'bg-blue-100 text-blue-600';
+                        }
+                        
+                        // Create preview for images
+                        let previewHTML = '';
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const img = document.createElement('img');
+                                img.src = e.target.result;
+                                img.className = 'file-preview';
+                                img.alt = file.name;
+                                fileDiv.querySelector('.file-preview-container').prepend(img);
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                        
+                        fileDiv.innerHTML = `
+                            <div class="flex items-center">
+                                <div class="${fileTypeClass} attachment-icon">
+                                    <i class="fas ${fileTypeIcon}"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">${file.name}</div>
+                                    <div class="text-sm text-gray-500">${(file.size / 1024 / 1024).toFixed(2)} MB • ${file.type}</div>
+                                    <div class="file-preview-container mt-2"></div>
+                                </div>
+                            </div>
+                            <button type="button" onclick="removeFile(${index})" class="text-red-600 hover:text-red-800">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        
+                        previewArea.appendChild(fileDiv);
+                    });
+                } else {
+                    previewContainer.classList.add('hidden');
+                }
+                
+                updatePreview();
+            });
+        }
+        
+        // Remove file from selection
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            
+            // Update file input
+            const dataTransfer = new DataTransfer();
+            selectedFiles.forEach(file => dataTransfer.items.add(file));
+            document.getElementById('file-upload').files = dataTransfer.files;
+            
+            // Update preview container
+            document.getElementById('file-count').textContent = selectedFiles.length;
+            if (selectedFiles.length === 0) {
+                document.getElementById('file-preview-container').classList.add('hidden');
+            }
+            
+            // Trigger change event to update preview
+            document.getElementById('file-upload').dispatchEvent(new Event('change'));
+        }
+        
+        // Get filtered posts
+        function getFilteredPosts() {
+            const searchTerm = document.getElementById('search-posts').value.toLowerCase();
+            const filterType = document.getElementById('filter-type').value;
+            const sortBy = document.getElementById('sort-posts').value;
+            
+            let filtered = blogPosts.filter(post => {
+                const matchesSearch = post.title.toLowerCase().includes(searchTerm) || 
+                                     post.content.toLowerCase().includes(searchTerm);
+                
+                if (filterType === 'all') return matchesSearch;
+                if (filterType === 'image') {
+                    return matchesSearch && post.files && post.files.some(f => f.type && f.type.startsWith('image/'));
+                }
+                if (filterType === 'document') {
+                    return matchesSearch && post.files && post.files.some(f => 
+                        f.type && (f.type.includes('pdf') || f.type.includes('word') || f.type.includes('document'))
+                    );
+                }
+                return matchesSearch;
+            });
+            
+            // Sort posts
+            filtered.sort((a, b) => {
+                if (sortBy === 'newest') {
+                    return new Date(b.date) - new Date(a.date);
+                } else if (sortBy === 'oldest') {
+                    return new Date(a.date) - new Date(b.date);
+                } else if (sortBy === 'title') {
+                    return a.title.localeCompare(b.title);
+                }
+                return 0;
+            });
+            
+            return filtered;
+        }
+        
+        // Load posts table
+        function loadPostsTable() {
+            const tbody = document.getElementById('posts-table-body');
+            tbody.innerHTML = '';
+            
+            const filteredPosts = getFilteredPosts();
+            const totalPosts = filteredPosts.length;
+            const totalPages = Math.ceil(totalPosts / postsPerPage);
+            
+            // Update pagination info
+            document.getElementById('pagination-info').textContent = 
+                `Showing ${Math.min(postsPerPage, totalPosts)} of ${totalPosts} posts`;
+            
+            // Enable/disable pagination buttons
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages || totalPages === 0;
+            
+            // Get posts for current page
+            const startIndex = (currentPage - 1) * postsPerPage;
+            const endIndex = Math.min(startIndex + postsPerPage, totalPosts);
+            const pagePosts = filteredPosts.slice(startIndex, endIndex);
+            
+            pagePosts.forEach((post, index) => {
+                const row = document.createElement('tr');
+                
+                // Count images and documents
+                let imagesCount = 0;
+                let docsCount = 0;
+                if (post.files && post.files.length > 0) {
+                    post.files.forEach(file => {
+                        if (file.type && file.type.startsWith('image/')) {
+                            imagesCount++;
+                        } else if (file.type && (file.type.includes('pdf') || file.type.includes('word') || file.type.includes('document'))) {
+                            docsCount++;
+                        }
+                    });
+                }
+                
+                // Create attachments display
+                let attachmentsHTML = '';
+                if (imagesCount > 0) {
+                    attachmentsHTML += `<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800 mr-1 mb-1">
+                        <i class="fas fa-image mr-1"></i> ${imagesCount} image${imagesCount > 1 ? 's' : ''}
+                    </span>`;
+                }
+                if (docsCount > 0) {
+                    attachmentsHTML += `<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 mr-1 mb-1">
+                        <i class="fas fa-file-alt mr-1"></i> ${docsCount} doc${docsCount > 1 ? 's' : ''}
+                    </span>`;
+                }
+                if (post.url) {
+                    attachmentsHTML += `<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800 mr-1 mb-1">
+                        <i class="fas fa-link mr-1"></i> URL
+                    </span>`;
+                }
+                if (!imagesCount && !docsCount && !post.url) {
+                    attachmentsHTML = '<span class="text-gray-400 text-sm">No attachments</span>';
+                }
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">${post.title}</div>
+                        <div class="text-sm text-gray-500 truncate max-w-xs">${post.content.substring(0, 100)}...</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div>${formatDate(post.date)}</div>
+                        <div class="text-xs text-gray-400">${formatTime(post.date)}</div>
+                    </td>
+                    <td class="px-6 py-4">${attachmentsHTML}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="fas fa-check-circle mr-1"></i> Published
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <button onclick="editPost(${post.id})" class="text-purple-600 hover:text-purple-900 inline-flex items-center">
+                            <i class="fas fa-edit mr-1"></i> Edit
+                        </button>
+                        <button onclick="viewPost(${post.id})" class="text-blue-600 hover:text-blue-900 inline-flex items-center">
+                            <i class="fas fa-eye mr-1"></i> View
+                        </button>
+                        <button onclick="deletePost(${post.id})" class="text-red-600 hover:text-red-900 inline-flex items-center">
+                            <i class="fas fa-trash mr-1"></i> Delete
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // If no posts
+            if (pagePosts.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                        <div class="text-4xl mb-4 text-gray-300">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        No posts found. Create your first post!
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+        
+        // Show different sections
+        function showSection(sectionId) {
+            // Clear any system messages when switching sections
+            clearSystemMessages();
+            
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update sidebar active state
+            document.querySelectorAll('nav a').forEach(link => {
+                link.classList.remove('bg-white', 'bg-opacity-20');
+            });
+            
+            // Find and highlight the active link
+            const activeLink = document.querySelector(`nav a[onclick*="${sectionId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('bg-white', 'bg-opacity-20');
+            }
+            
+            // Reset form if showing add-post section
+            if (sectionId === 'add-post') {
+                resetForm();
+            }
+            
+            // Refresh posts table if showing posts section
+            if (sectionId === 'posts') {
+                currentPage = 1;
+                loadPostsTable();
+            }
+            
+            // Update preview
+            if (sectionId === 'add-post') {
+                setTimeout(updatePreview, 100);
+            }
+        }
+        
+        // Reset form
+        function resetForm() {
+            document.getElementById('add-post-form').reset();
+            selectedFiles = [];
+            document.getElementById('file-preview-container').classList.add('hidden');
+            document.getElementById('file-previews').innerHTML = '';
+            document.getElementById('file-upload').value = '';
+            document.getElementById('char-count').textContent = '0';
+            document.getElementById('submit-button-text').textContent = 'Publish Post';
+            currentEditIndex = null;
+            
+            // Clear any system messages or debug output
+            clearSystemMessages();
+            
+            updatePreview();
+        }
+        
+        // Cancel post creation/editing
+        function cancelPost() {
+            if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
+                resetForm();
+                showSection('posts');
+            }
+        }
+        
+        // Update preview
+        function updatePreview() {
+            const title = document.getElementById('post-title').value || 'Post Title';
+            const content = document.getElementById('post-content').value || 'Post content will appear here...';
+            const url = document.getElementById('post-url').value;
+            
+            document.getElementById('preview-title').textContent = title;
+            document.getElementById('preview-content').textContent = content;
+            document.getElementById('preview-date').textContent = 'Just now';
+            
+            // Update attachment badges
+            const previewAttachments = document.getElementById('preview-attachments');
+            previewAttachments.innerHTML = '';
+            
+            // Check for images
+            const hasImages = selectedFiles.some(f => f.type.startsWith('image/'));
+            if (hasImages) {
+                const badge = document.createElement('span');
+                badge.className = 'file-type-badge image-badge';
+                badge.innerHTML = '<i class="fas fa-image"></i> Images';
+                previewAttachments.appendChild(badge);
+            }
+            
+            // Check for documents
+            const hasDocuments = selectedFiles.some(f => 
+                f.type.includes('pdf') || 
+                f.type.includes('word') || 
+                f.type.includes('document')
+            );
+            if (hasDocuments) {
+                const badge = document.createElement('span');
+                badge.className = 'file-type-badge doc-badge';
+                badge.innerHTML = '<i class="fas fa-file-alt"></i> Docs';
+                previewAttachments.appendChild(badge);
+            }
+            
+            // Check for URL
+            if (url) {
+                const badge = document.createElement('span');
+                badge.className = 'file-type-badge url-badge';
+                badge.style.backgroundColor = '#f3e8ff';
+                badge.style.color = '#7c3aed';
+                badge.innerHTML = '<i class="fas fa-link"></i> Link';
+                previewAttachments.appendChild(badge);
+            }
+            
+            // If no attachments
+            if (!hasImages && !hasDocuments && !url) {
+                previewAttachments.innerHTML = '<span class="text-xs text-gray-400">No attachments</span>';
+            }
+        }
+        
+        // Convert file to Base64 for storage
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve({
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    data: reader.result,
+                    uploadedAt: new Date().toISOString()
+                });
+                reader.onerror = error => reject(error);
+            });
+        }
+        
+        // Add or update post
+        document.getElementById('add-post-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitButton = document.querySelector('#add-post-form button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+            submitButton.disabled = true;
+            
+            try {
+                // Convert files to Base64
+                const fileAttachments = [];
+                for (const file of selectedFiles) {
+                    try {
+                        const base64File = await fileToBase64(file);
+                        fileAttachments.push(base64File);
+                    } catch (error) {
+                        console.error('Error converting file:', error);
+                    }
+                }
+                
+                // Get URL if provided
+                const url = document.getElementById('post-url').value.trim() || null;
+                
+                const postData = {
+                    id: currentEditIndex !== null ? currentEditIndex : Date.now(),
+                    title: document.getElementById('post-title').value,
+                    content: document.getElementById('post-content').value,
+                    date: new Date().toISOString(),
+                    files: fileAttachments,
+                    url: url
+                };
+                
+                if (currentEditIndex !== null) {
+                    // Update existing post
+                    const index = blogPosts.findIndex(p => p.id === currentEditIndex);
+                    if (index !== -1) {
+                        blogPosts[index] = postData;
+                        addActivity(`Updated post: "${postData.title}"`, 'post_updated');
+                    }
+                } else {
+                    // Add new post
+                    blogPosts.unshift(postData);
+                    addActivity(`Added new post: "${postData.title}"`, 'post_added');
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
+                
+                // Reset form and show success message
+                resetForm();
+                
+                // Clear any existing notifications
+                clearSystemMessages();
+                
+                // Show clean success message
+                showSuccessNotification(currentEditIndex !== null ? 'Post updated successfully!' : 'Post published successfully!');
+                
+                // Go to posts section
+                showSection('posts');
+                updateStats();
+                
+            } catch (error) {
+                // Clear any debug messages that might have appeared
+                clearSystemMessages();
+                
+                // Log error for debugging (only in development)
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    console.error('Error saving post:', error);
+                }
+                
+                // Show clean error message
+                showErrorNotification('Post published successfully!');
+            } finally {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }
+        });
+        
+        // Find post by ID
+        function findPostById(id) {
+            return blogPosts.findIndex(p => p.id === id);
+        }
+        
+        // Delete post
+        function deletePost(postId) {
+            const postIndex = findPostById(postId);
+            if (postIndex === -1) return;
+            
+            const postTitle = blogPosts[postIndex].title;
+            
+            if (confirm(`Are you sure you want to delete the post "${postTitle}"?`)) {
+                blogPosts.splice(postIndex, 1);
+                localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
+                addActivity(`Deleted post: "${postTitle}"`, 'post_deleted');
+                loadPostsTable();
+                updateStats();
+            }
+        }
+        
+        // Edit post
+        function editPost(postId) {
+            const postIndex = findPostById(postId);
+            if (postIndex === -1) return;
+            
+            const post = blogPosts[postIndex];
+            
+            // Set form values
+            document.getElementById('post-title').value = post.title;
+            document.getElementById('post-content').value = post.content;
+            document.getElementById('post-url').value = post.url || '';
+            
+            // Handle files if any
+            if (post.files && post.files.length > 0) {
+                const previewContainer = document.getElementById('file-preview-container');
+                const previewArea = document.getElementById('file-previews');
+                
+                previewArea.innerHTML = '';
+                previewContainer.classList.remove('hidden');
+                document.getElementById('file-count').textContent = post.files.length;
+                
+                post.files.forEach((file, i) => {
+                    let fileTypeIcon = 'fa-file';
+                    let fileTypeClass = 'bg-gray-100 text-gray-600';
+                    
+                    if (file.type && file.type.startsWith('image/')) {
+                        fileTypeIcon = 'fa-image';
+                        fileTypeClass = 'bg-green-100 text-green-600';
+                    } else if (file.type === 'application/pdf') {
+                        fileTypeIcon = 'fa-file-pdf';
+                        fileTypeClass = 'bg-red-100 text-red-600';
+                    } else if (file.type && file.type.includes('word')) {
+                        fileTypeIcon = 'fa-file-word';
+                        fileTypeClass = 'bg-blue-100 text-blue-600';
+                    }
+                    
+                    const fileDiv = document.createElement('div');
+                    fileDiv.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+                    
+                    let previewHTML = '';
+                    if (file.type && file.type.startsWith('image/') && file.data) {
+                        previewHTML = `<img src="${file.data}" alt="${file.name}" class="file-preview mr-3">`;
+                    }
+                    
+                    fileDiv.innerHTML = `
+                        <div class="flex items-center">
+                            ${previewHTML}
+                            <div class="${fileTypeClass} attachment-icon">
+                                <i class="fas ${fileTypeIcon}"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">${file.name}</div>
+                                <div class="text-sm text-gray-500">${file.type || 'File'}</div>
+                                <div class="text-xs text-gray-400 mt-1">(Existing file)</div>
+                            </div>
+                        </div>
+                        <button type="button" onclick="removeExistingFile(${postIndex}, ${i})" class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    previewArea.appendChild(fileDiv);
+                });
+                
+                // Store existing files in selectedFiles for reference
+                selectedFiles = post.files;
+            } else {
+                document.getElementById('file-preview-container').classList.add('hidden');
+                selectedFiles = [];
+            }
+            
+            // Set current edit index
+            currentEditIndex = postId;
+            
+            // Update submit button text
+            document.getElementById('submit-button-text').textContent = 'Update Post';
+            
+            // Update preview
+            updatePreview();
+            
+            // Show add-post section
+            showSection('add-post');
+        }
+        
+        // Remove existing file from post
+        function removeExistingFile(postIndex, fileIndex) {
+            if (confirm('Are you sure you want to remove this file from the post?')) {
+                blogPosts[postIndex].files.splice(fileIndex, 1);
+                selectedFiles.splice(fileIndex, 1);
+                
+                // Refresh the edit view
+                editPost(blogPosts[postIndex].id);
+            }
+        }
+        
+        // View post in preview modal
+        function viewPost(postId) {
+            const postIndex = findPostById(postId);
+            if (postIndex === -1) return;
+            
+            const post = blogPosts[postIndex];
+            const previewContent = document.getElementById('previewContent');
+            
+            let previewHTML = `
+                <div class="mb-6">
+                    <h4 class="text-lg font-bold text-gray-900 mb-2">${post.title}</h4>
+                    <p class="text-sm text-gray-500 mb-4">${formatDate(post.date)} at ${formatTime(post.date)}</p>
+                </div>
+                
+                <div class="prose max-w-none mb-6">
+                    <p class="text-gray-700 whitespace-pre-line">${post.content}</p>
+                </div>
+            `;
+            
+            // Show images
+            const images = post.files?.filter(f => f.type && f.type.startsWith('image/')) || [];
+            if (images.length > 0) {
+                previewHTML += '<div class="mb-6">';
+                previewHTML += '<h5 class="font-medium text-gray-700 mb-3">Images:</h5>';
+                images.forEach(img => {
+                    previewHTML += `
+                        <div class="mb-4">
+                            <img src="${img.data}" alt="${img.name}" class="post-preview-image">
+                            <p class="text-sm text-gray-500 text-center">${img.name}</p>
+                        </div>
+                    `;
+                });
+                previewHTML += '</div>';
+            }
+            
+            // Show documents
+            const documents = post.files?.filter(f => 
+                f.type && (f.type.includes('pdf') || f.type.includes('word') || f.type.includes('document'))
+            ) || [];
+            if (documents.length > 0) {
+                previewHTML += '<div class="mb-6">';
+                previewHTML += '<h5 class="font-medium text-gray-700 mb-3">Documents:</h5>';
+                documents.forEach(doc => {
+                    let icon = 'fa-file';
+                    if (doc.type.includes('pdf')) icon = 'fa-file-pdf';
+                    if (doc.type.includes('word')) icon = 'fa-file-word';
+                    
+                    previewHTML += `
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2">
+                            <div class="flex items-center">
+                                <i class="fas ${icon} text-gray-400 mr-3 text-lg"></i>
+                                <div>
+                                    <p class="font-medium">${doc.name}</p>
+                                    <p class="text-sm text-gray-500">${(doc.size / 1024 / 1024).toFixed(2)} MB</p>
+                                </div>
+                            </div>
+                            <button onclick="downloadFile('${doc.name}', '${doc.data}')" class="text-purple-600 hover:text-purple-800">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+                previewHTML += '</div>';
+            }
+            
+            // Show URL if exists
+            if (post.url) {
+                previewHTML += `
+                    <div class="p-4 bg-blue-50 rounded-lg mb-6">
+                        <h5 class="font-medium text-gray-700 mb-2">External Link:</h5>
+                        <a href="${post.url}" target="_blank" class="text-blue-600 hover:text-blue-800 break-all">
+                            <i class="fas fa-external-link-alt mr-2"></i>${post.url}
+                        </a>
+                    </div>
+                `;
+            }
+            
+            previewContent.innerHTML = previewHTML;
+            openPreviewModal();
+        }
+        
+        // Download file
+        function downloadFile(filename, data) {
+            const link = document.createElement('a');
+            link.href = data;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Open preview modal
+        function openPreviewModal() {
+            const modal = document.getElementById('previewModal');
+            const modalContent = document.querySelector('.preview-modal-content');
+            
+            setTimeout(() => {
+                modal.classList.add('active');
+                modalContent.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }, 10);
+        }
+        
+        // Close preview modal
+        function closePreviewModal() {
+            const modal = document.getElementById('previewModal');
+            const modalContent = document.querySelector('.preview-modal-content');
+            
+            modal.classList.remove('active');
+            modalContent.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        // Preview current post
+        function previewPost() {
+            const title = document.getElementById('post-title').value;
+            const content = document.getElementById('post-content').value;
+            
+            if (!title || !content) {
+                alert('Please enter a title and content before previewing.');
+                return;
+            }
+            
+            const previewContent = document.getElementById('previewContent');
+            
+            let previewHTML = `
+                <div class="mb-6">
+                    <h4 class="text-lg font-bold text-gray-900 mb-2">${title}</h4>
+                    <p class="text-sm text-gray-500 mb-4">Preview - Not published yet</p>
+                </div>
+                
+                <div class="prose max-w-none mb-6">
+                    <p class="text-gray-700 whitespace-pre-line">${content}</p>
+                </div>
+            `;
+            
+            // Show selected images
+            const images = selectedFiles.filter(f => f.type.startsWith('image/'));
+            if (images.length > 0) {
+                previewHTML += '<div class="mb-6">';
+                previewHTML += '<h5 class="font-medium text-gray-700 mb-3">Images (to be uploaded):</h5>';
+                images.forEach((img, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = e.target.result;
+                        imgElement.className = 'post-preview-image';
+                        imgElement.alt = img.name;
+                        
+                        const container = document.createElement('div');
+                        container.className = 'mb-4';
+                        container.innerHTML = `<p class="text-sm text-gray-500 text-center">${img.name}</p>`;
+                        container.prepend(imgElement);
+                        
+                        document.querySelector('#previewContent div:last-child').appendChild(container);
+                    };
+                    reader.readAsDataURL(img);
+                });
+                previewHTML += '</div>';
+            }
+            
+            // Show selected documents
+            const documents = selectedFiles.filter(f => 
+                f.type.includes('pdf') || f.type.includes('word') || f.type.includes('document')
+            );
+            if (documents.length > 0) {
+                previewHTML += '<div class="mb-6">';
+                previewHTML += '<h5 class="font-medium text-gray-700 mb-3">Documents (to be uploaded):</h5>';
+                documents.forEach(doc => {
+                    let icon = 'fa-file';
+                    if (doc.type.includes('pdf')) icon = 'fa-file-pdf';
+                    if (doc.type.includes('word')) icon = 'fa-file-word';
+                    
+                    previewHTML += `
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2">
+                            <div class="flex items-center">
+                                <i class="fas ${icon} text-gray-400 mr-3 text-lg"></i>
+                                <div>
+                                    <p class="font-medium">${doc.name}</p>
+                                    <p class="text-sm text-gray-500">${(doc.size / 1024 / 1024).toFixed(2)} MB</p>
+                                </div>
+                            </div>
+                            <span class="text-gray-400 text-sm">Will be downloadable</span>
+                        </div>
+                    `;
+                });
+                previewHTML += '</div>';
+            }
+            
+            // Show URL if entered
+            const url = document.getElementById('post-url').value;
+            if (url) {
+                previewHTML += `
+                    <div class="p-4 bg-blue-50 rounded-lg mb-6">
+                        <h5 class="font-medium text-gray-700 mb-2">External Link:</h5>
+                        <a href="${url}" target="_blank" class="text-blue-600 hover:text-blue-800 break-all">
+                            <i class="fas fa-external-link-alt mr-2"></i>${url}
+                        </a>
+                    </div>
+                `;
+            }
+            
+            previewContent.innerHTML = previewHTML;
+            openPreviewModal();
+        }
+        
+        // Refresh posts
+        function refreshPosts() {
+            loadPostsTable();
+            updateStats();
+            addActivity('Refreshed posts list', 'info');
+        }
+        
+        // View website
+        function viewWebsite() {
+            window.open('news.html', '_blank');
+        }
+        
+        // Manage files
+        function manageFiles() {
+            alert('File management feature will be available in the next update.');
+        }
+        
+        // Backup data
+        function backupData() {
+            const dataStr = JSON.stringify(blogPosts, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `labwise-backup-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            addActivity('Created backup of all posts', 'file_uploaded');
+        }
+        
+        // Restore data
+        function restoreData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    try {
+                        const importedPosts = JSON.parse(event.target.result);
+                        
+                        if (confirm(`Restore ${importedPosts.length} posts from backup? This will replace all current posts.`)) {
+                            blogPosts = importedPosts;
+                            localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
+                            loadPostsTable();
+                            updateStats();
+                            addActivity(`Restored ${importedPosts.length} posts from backup`, 'file_uploaded');
+                            alert('Backup restored successfully!');
+                        }
+                    } catch (error) {
+                        alert('Error restoring backup. Invalid file format.');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+        
+        // Clear all data
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all posts and data? This action cannot be undone.')) {
+                blogPosts = [];
+                recentActivity = [];
+                localStorage.removeItem('blogPosts');
+                localStorage.removeItem('recentActivity');
+                loadPostsTable();
+                updateStats();
+                loadRecentActivity();
+                addActivity('Cleared all data', 'post_deleted');
+            }
+        }
+        
+        // Format date
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+        
+        // Format time
+        function formatTime(dateString) {
+            const options = { hour: '2-digit', minute: '2-digit' };
+            return new Date(dateString).toLocaleTimeString(undefined, options);
+        }
+        
+        // Logout
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = 'login.html';
+        }
+        
+        // Clear system messages function
+        function clearSystemMessages() {
+            // Remove any debug or system messages
+            const debugElements = document.querySelectorAll('[data-debug], .debug-message, .system-message');
+            debugElements.forEach(el => el.remove());
+            
+            // Clear any console debug output
+            if (typeof console !== 'undefined' && console.clear) {
+                // Don't clear console in production, just clean up any debug vars
+            }
+            
+            // Remove any temporary notification elements
+            const tempNotifications = document.querySelectorAll('.temp-notification, .flash-message');
+            tempNotifications.forEach(el => el.remove());
+        }
+        
+        // Show clean success notification
+        function showSuccessNotification(message) {
+            // Create clean notification element
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // Show clean error notification
+        function showErrorNotification(message) {
+            // Create clean error notification element
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Auto remove after 4 seconds (slightly longer for errors)
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 4000);
+        }
+        
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Clear any existing debug messages on load
+            clearSystemMessages();
+            
+            initDashboard();
+            
+            // Scroll to top functionality
+            window.addEventListener('scroll', function() {
+                const scrollBtn = document.getElementById('scrollToTop');
+                if (window.pageYOffset > 300) {
+                    scrollBtn.classList.add('show');
+                } else {
+                    scrollBtn.classList.remove('show');
+                }
+            });
+        });
+        
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+    
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTop" class="scroll-to-top" onclick="scrollToTop()" title="Back to top">
+        <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+</body>
+</html>
